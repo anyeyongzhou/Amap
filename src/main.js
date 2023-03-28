@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from '@/App.vue'
 
 import router from '@/router/index.js'
+import store from './store/index.js'
 
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
@@ -22,6 +23,9 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 
 //使用路由
 app.use(router)
+
+//使用vuex
+app.use(store)
 
 //国际化配置
 app.use(ElementPlus, {

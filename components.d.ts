@@ -13,10 +13,13 @@ declare module '@vue/runtime-core' {
     ElButton: typeof import('element-plus/es')['ElButton']
     ElForm: typeof import('element-plus/es')['ElForm']
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
+    ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
     Home: typeof import('./src/components/Home.vue')['default']
+    MapContainer: typeof import('./src/components/MapContainer/MapContainer.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Search: typeof import('./src/components/Search/Search.vue')['default']
     Welcome: typeof import('./src/components/Welcome.vue')['default']
   }
 }

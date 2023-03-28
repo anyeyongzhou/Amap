@@ -1,9 +1,20 @@
 import { createStore } from 'vuex'
 
+const searchInput = {
+  userInput: '',
+  inputId: ''
+}
+
 export default createStore({
-  state: {},
+  state: {
+    searchInput
+  },
   getters: {},
-  mutations: {},
+  mutations: {
+    setSearchInput(state, val) {
+      state.searchInput = val
+    }
+  },
   actions: {},
   modules: {}
 })
