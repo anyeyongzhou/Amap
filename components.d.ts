@@ -11,15 +11,19 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Detail: typeof import('./src/components/Detail.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
+    ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
     ElForm: typeof import('element-plus/es')['ElForm']
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
+    ElRadio: typeof import('element-plus/es')['ElRadio']
+    ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
     Home: typeof import('./src/components/Home.vue')['default']
     MapContainer: typeof import('./src/components/MapContainer/MapContainer.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Search: typeof import('./src/components/Search/Search.vue')['default']
+    ThermalMapBox: typeof import('./src/components/ThermalMapBox/ThermalMapBox.vue')['default']
     Welcome: typeof import('./src/components/Welcome.vue')['default']
   }
 }

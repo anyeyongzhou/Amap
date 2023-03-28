@@ -1,7 +1,18 @@
-# Vue 3 + Vite
+使用的技术
+  Vue 3 
+  Vite
+  vuex
+  axios
+  防抖节流
+  弹窗控制
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+包含的功能
+  高德地图
+    控件
+    关键词搜索
+    POI搜索
+    行政区边界绘制
+    热力图
 
-## Recommended IDE Setup
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+

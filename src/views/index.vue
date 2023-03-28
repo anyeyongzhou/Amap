@@ -7,6 +7,9 @@
     <div class="map_wrap">
       <map-container></map-container>
     </div>
+    <div class="theramalmap_wrap">
+      <thermal-map></thermal-map>
+    </div>
   </div>
 </template>
 
@@ -18,6 +21,7 @@ const props = defineProps({})
 const emit = defineEmits([]) */
 import MapContainer from '../components/MapContainer/MapContainer.vue'
 import Search from '../components/Search/Search.vue'
+import ThermalMap from '../components/ThermalMapBox/ThermalMapBox.vue'
 </script>
 
 <style lang="less" scoped>
@@ -41,5 +45,15 @@ import Search from '../components/Search/Search.vue'
   transform: translate(-50%, -50%);
   height: 60px;
   width: 400px;
+}
+.theramalmap_wrap {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  // height: 20px;
+  // width: 20px;
+  // border: 1px solid red;
+  z-index: 10;
 }
 </style>

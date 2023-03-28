@@ -13,9 +13,9 @@ import AMapLoader from '@amap/amap-jsapi-loader'
 import { ref, onMounted, watch, reactive } from 'vue'
 import { useStore } from 'vuex'
 import ShowMessage from '../../utils/message.js'
+import { ElNotification } from 'element-plus'
 const showMessage = new ShowMessage()
 const store = useStore()
-//const inputValue = store.state.searchInput
 //引入秘钥
 window._AMapSecurityConfig = {
   securityJsCode: 'ab50347180e98051a8caac09781b9f6e'
@@ -40,11 +40,121 @@ const select = (e) => {
   //map.setZoom(10, true)
 }
 
-//监听store,state的变化
-watch(store.state, (newVal) => {
-  autoOptions.input = newVal.searchInput.inputId
-  searchPlaceInput.value = newVal.searchInput.userInput
+//监听store,state的searchInput变化
+watch(store.state.searchInput, (newVal) => {
+  autoOptions.input = newVal.inputId
+  searchPlaceInput.value = newVal.userInput
 })
+
+//是否展示热力图的标志
+let showThermalMap = false
+
+//监听store,state的thermalMapIsChecked变化
+watch(
+  () => store.state.thermalMapIsChecked,
+  (newVal) => {
+    showThermalMap = newVal
+    if (showThermalMap) {
+      showThermalOut()
+    }
+  }
+)
+
+//热力图坐标点搜索
+const showThermalOut = () => {
+  map.plugin(['AMap.PlaceSearch'], () => {
+    //构造地点查询类
+    var placeSearch = new AMap.PlaceSearch({
+      pageSize: 50, // 单页显示结果条数
+      pageIndex: 1, // 页码
+      city: searchPlaceInput, // 兴趣点城市
+      citylimit: true //是否强制限制在设置的城市内搜索
+      //map: this.map, // 展现结果的地图实例
+      // panel: 'panel', // 结果列表将在此容器中进行展示。
+      // autoFitView: true // 是否自动调整地图视野使绘制的 Marker点都处于视口的可见范围
+    })
+    //关键字查询
+    placeSearch.search('商场', (status, result) => {
+      // console.log(result)
+      getHotChartPos('商场', result)
+    })
+  })
+  ElNotification({
+    title: '成功',
+    message: '热力图获取成果，但是由于电脑性能，我们仅加载部分数据',
+    type: 'success'
+  })
+}
+
+//对搜索到的数据进行实际的获取
+const getHotChartPos = (detail, result) => {
+  console.log(result)
+  let lengthSize = result.poiList.pageSize
+  const count = result.poiList.count
+  // const lengthPage = count / lengthSize
+  if (lengthSize > count) {
+    lengthSize = count
+  }
+  for (var n = 0; n < 2; n++) {
+    // this.map.plugin(['AMap.PlaceSearch'], () => {
+    //构造地点查询类
+    var realSearch = new AMap.PlaceSearch({
+      pageSize: 50, // 单页显示结果条数
+      pageIndex: n + 1, // 页码
+      city: searchPlaceInput, // 兴趣点城市
+      citylimit: true //是否强制限制在设置的城市内搜索
+      // map: this.map, // 展现结果的地图实例
+      // panel: 'panel', // 结果列表将在此容器中进行展示。
+      // autoFitView: true // 是否自动调整地图视野使绘制的 Marker点都处于视口的可见范围
+    })
+    realSearch.search(detail, (status, result) => {
+      // for (var j = 0; j < 50; j++) {
+      // this.map.remove(this.map.getAllOverlays('marker'))
+      //var centerPoint = [result.poiList.pois[j].location.lng, result.poiList.pois[j].location.lat]
+      // console.log(result)
+      //热力图
+      showHatChart(result)
+      // }
+    })
+  }
+}
+
+//展示热力图
+const showHatChart = (result) => {
+  var info = []
+  for (let i = 0; i < 50; i++) {
+    info.push({
+      lng: result.poiList.pois[i].location.lng,
+      lat: result.poiList.pois[i].location.lat,
+      count: 3 * 6.4 * Math.round(Math.random() * (10 - 2) + 2)
+    })
+  }
+
+  map.plugin(['AMap.HeatMap'], () => {
+    // console.log('nn')
+    //初始化heatmap对象
+    heatmap = new AMap.HeatMap(this.map, {
+      radius: 56, //给定半径
+      opacity: [0, 0.5]
+      /*,
+            gradient:{
+                0.5: 'blue',
+                0.65: 'rgb(117,211,248)',
+                0.7: 'rgb(0, 255, 0)',
+                0.9: '#ffea00',
+                1.0: 'red'
+            }
+             */
+    })
+    //设置数据集
+    heatmap.setDataSet({
+      data: info,
+      max: 100
+    })
+    heatmapList.push(this.heatmap)
+    heatmap.show()
+  })
+}
 
 //用于drawBounds函数
 let district = null
@@ -75,7 +185,12 @@ const initMap = () => {
     //'AMap.Geolocation'回到本身位置
     //'AMap.PlaceSearch'
     //'AMap.AutoComplete'输入提示控件
-    plugins: ['AMap.Scale', 'AMap.AutoComplete', 'AMap.PlaceSearch']
+    plugins: [
+      'AMap.Scale',
+      'AMap.AutoComplete',
+      'AMap.PlaceSearch',
+      'AMap.HawkEye'
+    ]
   })
     .then((AMap) => {
       map = new AMap.Map('container', {
@@ -91,6 +206,9 @@ const initMap = () => {
       map.addControl(new AMap.MapType())
       map.addControl(new AMap.HawkEye())
       map.addControl(new AMap.Geolocation()) */
+      map.addControl(new AMap.Scale())
+      map.addControl(new AMap.HawkEye())
+
       //触发输入提示
       auto = new AMap.AutoComplete(autoOptions)
 

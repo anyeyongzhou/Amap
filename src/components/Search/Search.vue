@@ -38,12 +38,6 @@ const searchClick = debounce(() => {
   store.commit('setSearchInput', inputObject)
 }, 1000)
 
-const messageFeedBack = (message, type) => {
-  ElMessage({
-    message,
-    type
-  })
-}
 const clearClick = () => {
   // console.log('clear')
 }
