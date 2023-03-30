@@ -3,17 +3,13 @@
 </template>
 
 <script setup>
-/* import { ref, reactive, toRef, toRefs,computed,watch， watchEffect,provide,inject,useSlots,useAttrs,onMounted,onUpdated,onUnmounted,onBeforeMount,onBeforeUpdate,onBeforeUnmount,shallowRef,shallowReactive,} from 'vue'
-import { useStore } from 'vuex'
-import { useRoute, useRouter } from 'vue-router'
-const props = defineProps({})
-const emit = defineEmits([]) */
 //引入AMapLoader
 import AMapLoader from '@amap/amap-jsapi-loader'
 import { ref, onMounted, watch, reactive } from 'vue'
 import { useStore } from 'vuex'
 import ShowMessage from '../../utils/message.js'
 import { ElNotification } from 'element-plus'
+import getImageUrl from '../../utils/getImageByPath'
 const showMessage = new ShowMessage()
 const store = useStore()
 //引入秘钥
@@ -32,6 +28,7 @@ const searchPlaceInput = ref('')
 
 //城市搜索关键字
 let placeSearch = {}
+
 //地图搜索方法，e是回调，e.poi.adcode城市ID,e.poi.name城市名字
 const select = (e) => {
   placeSearch.setCity(e.poi.adcode)
@@ -41,9 +38,11 @@ const select = (e) => {
 }
 
 //监听store,state的searchInput变化
-watch(store.state.searchInput, (newVal) => {
-  autoOptions.input = newVal.inputId
-  searchPlaceInput.value = newVal.userInput
+watch(store.state, (newVal) => {
+  autoOptions.input = newVal.searchInput.inputId
+  searchPlaceInput.value = newVal.searchInput.userInput
+  // console.log(autoOptions.input)
+  // console.log(searchPlaceInput.value)
 })
 
 //是否展示热力图的标志
@@ -75,7 +74,6 @@ const showThermalOut = () => {
     })
     //关键字查询
     placeSearch.search('商场', (status, result) => {
-      // console.log(result)
       getHotChartPos('商场', result)
     })
   })
@@ -88,7 +86,6 @@ const showThermalOut = () => {
 
 //对搜索到的数据进行实际的获取
 const getHotChartPos = (detail, result) => {
-  console.log(result)
   let lengthSize = result.poiList.pageSize
   const count = result.poiList.count
   // const lengthPage = count / lengthSize
@@ -101,23 +98,22 @@ const getHotChartPos = (detail, result) => {
     var realSearch = new AMap.PlaceSearch({
       pageSize: 50, // 单页显示结果条数
       pageIndex: n + 1, // 页码
-      city: searchPlaceInput, // 兴趣点城市
+      city: searchPlaceInput, // heatmap兴趣点城市
       citylimit: true //是否强制限制在设置的城市内搜索
       // map: this.map, // 展现结果的地图实例
       // panel: 'panel', // 结果列表将在此容器中进行展示。
       // autoFitView: true // 是否自动调整地图视野使绘制的 Marker点都处于视口的可见范围
     })
     realSearch.search(detail, (status, result) => {
-      // for (var j = 0; j < 50; j++) {
-      // this.map.remove(this.map.getAllOverlays('marker'))
-      //var centerPoint = [result.poiList.pois[j].location.lng, result.poiList.pois[j].location.lat]
-      // console.log(result)
       //热力图
       showHatChart(result)
       // }
     })
   }
 }
+
+let heatmap = null
+//let heatmapList = null
 
 //展示热力图
 const showHatChart = (result) => {
@@ -130,13 +126,11 @@ const showHatChart = (result) => {
     })
   }
 
-  map.plugin(['AMap.HeatMap'], () => {
-    // console.log('nn')
-    //初始化heatmap对象
-    heatmap = new AMap.HeatMap(this.map, {
-      radius: 56, //给定半径
-      opacity: [0, 0.5]
-      /*,
+  //初始化heatmap对象
+  heatmap = new AMap.HeatMap(map, {
+    radius: 56, //给定半径
+    opacity: [0, 0.5]
+    /*,
             gradient:{
                 0.5: 'blue',
                 0.65: 'rgb(117,211,248)',
@@ -145,15 +139,12 @@ const showHatChart = (result) => {
                 1.0: 'red'
             }
              */
-    })
-    //设置数据集
-    heatmap.setDataSet({
-      data: info,
-      max: 100
-    })
-    heatmapList.push(this.heatmap)
-    heatmap.show()
   })
+  heatmap.setDataSet({
+    data: info,
+    max: 100
+  })
+  heatmap.show()
 }
 
 //用于drawBounds函数
@@ -170,10 +161,35 @@ watch(searchPlaceInput, (newVal) => {
 //auto是用于我们进行输入提示的接收变量，由于是new出的一个对象所以定义初始值为null
 let auto = null
 
+let infoWindow = null
+//回调函数
+const placeSearch_CallBack = (data) => {
+  //infoWindow.open(map, result.lnglat);
+  var poiArr = data.poiList.pois
+  var location = poiArr[0].location
+  infoWindow.setContent(createContent(poiArr[0]))
+  infoWindow.open(map, location)
+}
+const createContent = (poi) => {
+  //信息窗体内容
+  var s = []
+  s.push(
+    '<div class="info-title">' +
+      poi.name +
+      '</div><div class="info-content">' +
+      '地址：' +
+      poi.address
+  )
+  s.push('电话：' + poi.tel)
+  s.push('类型：' + poi.type)
+  s.push('<div>')
+  return s.join('<br>')
+}
+
 //构建初始化地图方法
 const initMap = () => {
   AMapLoader.load({
-    key: 'dcb3841ae0e471fed5651fea3aa69487', // 申请好的Web端开发者Key，首次调用 load 时必填
+    key: 'dcb3841ae0e471fed5651fea3aa69487', // 申请好的Web端开发者Key，首次调用 load 时必填     dcb3841ae0e471fed5651fea3aa69487
     version: '2.0', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
     // plugins需要使用的的插件列表
     //'AMap.Control'地图控件基类，可扩展做自定义地图控件
@@ -189,7 +205,9 @@ const initMap = () => {
       'AMap.Scale',
       'AMap.AutoComplete',
       'AMap.PlaceSearch',
-      'AMap.HawkEye'
+      'AMap.HeatMap',
+      'AMap.HawkEye',
+      'AMap.Geocoder' //地理逆编码插件
     ]
   })
     .then((AMap) => {
@@ -197,7 +215,8 @@ const initMap = () => {
         //设置地图容器id
         viewMode: '2D', //是否为3D地图模式
         zoom: 10, //初始化地图级别
-        center: [121.473667, 31.230525] //初始化地图中心点位置
+        center: [121.473667, 31.230525], //初始化地图中心点位置    121.473667, 31.230525   116.418261, 39.921984
+        isHotspot: true
       })
       //添加比例尺控件
       /*  map.addControl(new AMap.Scale())
@@ -218,10 +237,127 @@ const initMap = () => {
       })
       //构造地点查询类
       auto.on('select', select)
+
+      //初始化heatmap对象
+      // heatmap = new AMap.HeatMap(map, {
+      //   radius: 56, //给定半径
+      //   opacity: [0, 0.5]
+      //   /*,
+      //       gradient:{
+      //           0.5: 'blue',
+      //           0.65: 'rgb(117,211,248)',
+      //           0.7: 'rgb(0, 255, 0)',
+      //           0.9: '#ffea00',
+      //           1.0: 'red'
+      //       }
+      //        */
+      // })
+
+      // 创建一个 Marker 实例：
+      // const marker1 = new AMap.Marker({
+      //   position: new AMap.LngLat(121.473667, 31.230525), // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
+      //   title: '上海'
+      // })
+
+      // // 将创建的点标记添加到已有的地图实例：
+      // map.add(marker1)
+
+      // 创建 AMap.Icon 实例：
+      const icon = new AMap.Icon({
+        size: new AMap.Size(40, 50), // 图标尺寸
+        image: getImageUrl('Marker.png'), // Icon的图像
+        imageOffset: new AMap.Pixel(0, 0), // 图像相对展示区域的偏移量，适于雪碧图等
+        imageSize: new AMap.Size(20, 20) // 根据所设置的大小拉伸或压缩图片
+      })
+
+      /* var content =
+        '<div style="height: 30px; width: 30px;"><img style="width: 100%; height: 100%" src="' +
+        getImageUrl('Marker.png') +
+        '"></img></div>' */
+
+      // 将 Icon 实例添加到 marker 上:
+      const marker2 = new AMap.Marker({
+        position: new AMap.LngLat(121.473667, 31.230525),
+        offset: new AMap.Pixel(-10, -10),
+        //content: content,
+        icon: icon,
+        title: '自定义点标记',
+        zoom: 13
+      })
+
+      map.add(marker2)
+
+      //圆点标记
+      let circleMarker = new AMap.CircleMarker({
+        map,
+        center: new AMap.LngLat(121.473667, 31.230525), //AMap.LngLat()经纬度坐标
+        radius: 20
+      })
+
+      circleMarker.setMap(map)
+
+      infoWindow = new AMap.InfoWindow({})
+      map.on('hotspotover', function (result) {
+        if (map.getZoom() >= 13) {
+          placeSearch.getDetails(result.id, function (status, result) {
+            if (status === 'complete' && result.info === 'OK') {
+              placeSearch_CallBack(result)
+            }
+          })
+        }
+      })
+
+      //绑定鼠标点击事件
+      map.on('click', (e) => {
+        let lat = e.lnglat.lat
+        let lng = e.lnglat.lng
+        getLngLatService(lng, lat)
+      })
     })
     .catch((e) => {
       console.log(e)
     })
+}
+
+var geocoder = null
+//逆向地址编码服务
+const getLngLatService = (lng, lat) => {
+  let poi = [lng, lat]
+  let lnglat = new AMap.LngLat(lng, lat)
+  geocoder = new AMap.Geocoder({
+    city: '全国', //城市设为北京，默认：“全国”
+    radius: 1000 //范围，默认：500
+  })
+
+  // 创建 AMap.Icon 实例：
+  const icon = new AMap.Icon({
+    size: new AMap.Size(40, 50), // 图标尺寸
+    image: getImageUrl('Marker.png'), // Icon的图像
+    imageOffset: new AMap.Pixel(0, 0), // 图像相对展示区域的偏移量，适于雪碧图等
+    imageSize: new AMap.Size(20, 20) // 根据所设置的大小拉伸或压缩图片
+  })
+
+  //1.点击地图任意位置生成一个marker
+  const marker3 = new AMap.Marker({
+    position: new AMap.LngLat(lng, lat),
+    icon: icon
+  })
+
+  map.add(marker3)
+
+  //2.将位置信息转化为坐标-->地理信息
+  //3.根据地理信息进行搜索获取详细信息
+  geocoder.getAddress(lnglat, (status, result) => {
+    if (status === 'complete' && result.info === 'OK') {
+      // result为对应的地理位置详细信息
+      let address = result.regeocode.formattedAddress
+      //4.固定的窗体信息进行展示(用vuex)
+      let data = {}
+      data.address = address
+      data.lngLat = poi
+      store.commit('setMouseGetMessage', data)
+    }
+  })
 }
 
 //边界绘制函数
@@ -245,7 +381,6 @@ const drawBounds = (newValue) => {
   district.search(newValue, (status, result) => {
     if (result.districtList != null && newValue != '') {
       showMessage.success('区域搜索成功')
-      console.log(result)
       if (polygons != null) {
         map.remove(polygons) //清除上次结果
         polygons = []
@@ -272,14 +407,6 @@ const drawBounds = (newValue) => {
     }
   })
 }
-
-//查询结果给出的提示
-// const messageFeedBack = (message, type) => {
-//   ElMessage({
-//     message,
-//     type
-//   })
-// }
 
 onMounted(() => {
   initMap()

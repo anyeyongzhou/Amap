@@ -4,11 +4,8 @@
     <div class="search_wrap">
       <search></search>
     </div>
-    <div class="map_wrap">
-      <map-container></map-container>
-    </div>
-    <div class="theramalmap_wrap">
-      <thermal-map></thermal-map>
+    <div class="polygon_edit_wrap">
+      <polygon-edit></polygon-edit>
     </div>
     <div class="infowindow_wrap">
       <info-window></info-window>
@@ -17,9 +14,8 @@
 </template>
 
 <script setup>
-import MapContainer from '../components/MapContainer/MapContainer.vue'
+import PolygonEdit from '../components/PolygonEdit/PolygonEdit.vue'
 import Search from '../components/Search/Search.vue'
-import ThermalMap from '../components/ThermalMapBox/ThermalMapBox.vue'
 import InfoWindow from '../components/InfoWidow/InfoWindow.vue'
 </script>
 
@@ -29,31 +25,21 @@ import InfoWindow from '../components/InfoWidow/InfoWindow.vue'
   width: 100%;
   position: relative;
 }
-.map_wrap {
+.polygon_edit_wrap {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  height: 60%;
-  width: 60%;
+  height: 80%;
+  width: 80%;
 }
 .search_wrap {
   position: absolute;
-  top: 10%;
+  top: 9%;
   left: 50%;
   transform: translate(-50%, -50%);
   height: 60px;
   width: 400px;
-}
-.theramalmap_wrap {
-  position: absolute;
-  top: 15%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  // height: 20px;
-  // width: 20px;
-  // border: 1px solid red;
-  z-index: 10;
 }
 .infowindow_wrap {
   position: absolute;

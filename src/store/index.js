@@ -9,10 +9,17 @@ const searchInput = {
 //热力图
 let thermalMapIsChecked = false
 
+//
+let mouseGetMessage = {
+  address: '',
+  lngLat: null
+}
+
 export default createStore({
   state: {
     searchInput,
-    thermalMapIsChecked
+    thermalMapIsChecked,
+    mouseGetMessage
   },
   getters: {},
   mutations: {
@@ -21,6 +28,9 @@ export default createStore({
     },
     setThermalMap(state, val) {
       state.thermalMapIsChecked = val
+    },
+    setMouseGetMessage(state, val) {
+      state.mouseGetMessage = val
     }
   },
   actions: {},

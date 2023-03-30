@@ -33,10 +33,14 @@ const inputObject = reactive({
   userInput: '',
   inputId: 'searchInput'
 })
-const searchClick = debounce(() => {
+/* const searchClick = debounce(() => {
   //console.log('防抖函数执行')
   store.commit('setSearchInput', inputObject)
-}, 1000)
+}, 1000) */
+
+const searchClick = () => {
+  store.commit('setSearchInput', inputObject)
+}
 
 const clearClick = () => {
   // console.log('clear')

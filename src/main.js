@@ -11,6 +11,8 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import './style.css'
 //全局引入自定义css
 import './style/index.css'
+//引入element-plus的样式
+import 'element-plus/dist/index.css'
 
 //引入element-plue的icon图标
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'

@@ -13,6 +13,12 @@ const routes = [
     path: '/index',
     name: 'index',
     component: Index
+  },
+  {
+    //多边形编辑器
+    path: '/polygon',
+    name: 'polygon',
+    component: () => import('../views/polygon.vue')
   }
 ]
 
